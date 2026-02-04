@@ -3,52 +3,39 @@ import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import mongoose from 'mongoose';
+import dotenv from "dotenv";
+import { connectTosocket } from './controllers/socketmanager.js';
+import userRoutes from './routes/userRoutes.js';
+dotenv.config();
+
 const app = express();
 const server = createServer(app);
-const io = new Server(server) ;
+const io = connectTosocket(server);
+
+app.use("/api/v1/users", userRoutes);
+
+app.use(cors());
+app.use(express.json ({ limit: '40kb' }));
+app.use(express.urlencoded({ extended: true, limit: '40kb' }));
 app.set('port', process.env.PORT || 8000);
 
-
-app.get("/home",(req,res)=>{
+app.get("/home", (req, res) => {
   res.send("Hello from Meetify Backend");
 });
+
 const startServer = async () => {
-    const coonectionDb = await mongoose.connect(process.env.MONGODB_URI || "mongodb+srv://siyamukeshsharma_db_user:RKvYCXo3U40OwAY3@cluster0.nd8ruwo.mongodb.net/");
-server.listen(app.get('port'), () => {
-  console.log(`Server is running on port ${app.get('port')}`);
-});
-}
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log(" MongoDB Connected Successfully");
+
+    server.listen(app.get('port'), () => {
+      console.log(`Server running on port ${app.get('port')}`);
+    });
+
+  } catch (error) {
+    console.error(" MongoDB Connection Failed:", error.message);
+    process.exit(1);
+  }
+};
+
 startServer();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
