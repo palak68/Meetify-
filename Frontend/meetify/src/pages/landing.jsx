@@ -23,7 +23,7 @@ export default function LandingPage() {
                 <h1><span style={{color:"#ff9839"}}>Connect</span> with your loved ones</h1>
               <p>Cover a distance by Meetify</p>
               <div>
-               <a href="/home">Get started</a>
+               <div role="button"><a href="/auth">Get started</a></div>
               </div>
             </div>
             <div>
