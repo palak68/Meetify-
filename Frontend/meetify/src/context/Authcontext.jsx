@@ -12,6 +12,8 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
 
+  
+
   const handleRegister = async (name, username, password) => {
     try {
       const response = await client.post("/register", {
