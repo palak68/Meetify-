@@ -32,11 +32,25 @@ export const AuthProvider = ({ children }) => {
       throw error;
     }
   };
-
+  const handleLogin = async (username , password)=>{
+    try{
+let request = await client.post("/login", {
+  username,
+  password
+})
+if(request.status === HttpStatusCode.Ok){
+  localStorage.setItem("token", request.data.token);
+  navigate("/");
+}
+    }catch(error){
+throw error;
+    }
+  }
   const data = {
     userData,
     setUserData,
     handleRegister,
+    handleLogin
   };
 
   return (

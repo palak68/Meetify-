@@ -58,11 +58,15 @@ export default function Authentication() {
                 setPassword("")
             }
         } catch (err) {
+    console.log("Full error:", err);
 
-            console.log(err);
-            let message = (err.response.data.message);
-            setError(message);
-        }
+    const message =
+        err?.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+    setError(message);
+}
+
     }
 
 
