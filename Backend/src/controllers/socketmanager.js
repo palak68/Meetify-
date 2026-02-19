@@ -14,6 +14,7 @@ let timeOnline = {}
 });
 
     io.on("connection",(socket)=>{
+       console.log("something connected to socket");
         socket.on("join-call",(path)=>{
 
             if(connection[path]===undefined){
