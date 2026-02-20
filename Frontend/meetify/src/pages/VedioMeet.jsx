@@ -1,5 +1,5 @@
 import React from "react";
-import "../styles/vedioComponent.css"
+import styles from "../styles/vedioComponent.module.css"
 const server_url = "http://localhost:8000";
 
 var connections ={};
@@ -77,7 +77,73 @@ useEffect(() =>
 
  let userMediaSuccess = (stream)=>{
 
+try{
+  window.localStream .getTracks().forEach(track => track.stop());
+  
+
+
+
+}catch(err){
+  console.log(err);
+}
+window.localStream = stream;
+localVedioRef.current.srcObject = stream;
+
+for(let id in connections){
+  if(id == socketIdRef.current){
+    continue;
+  }
+  connections[id].addStream(window.localStream);
+  connections[id].createOffer().then((description) =>{
+     connections[id].setLocalDescription(description).then(()=>{
+      socketIdRef.current.emit("signal", id, JSON.stringify({'sdp': connections[id].localDescription}));
+     }) .catch(err =>{console.log(err);})
+
+  }) 
+}
+streams.getTracks().forEach(track => track.onended=()=>{
+  setVedio(false);
+  setAudio(false);
+  try{    let tracks = localVedioRef.current.srcObject.getTracks();
+    tracks.forEach(track => track.stop());
+  }catch(err){
+    console.log(err);
+  }
+  let blackSilenceStream = (...args) => new MediaStream([black(...args), silence(...args)]);
+          window.localStream = blackSilenceStream();
+          localVedioRef.current.srcObject = window.localStream;
+        });
+  for(let id in connections){
+    connections[id].addstream(window.localStream);
+    connections[id].createOffer().then((description) =>{
+       connections[id].setLocalDescription(description).then(()=>{
+        socketIdRef.current.emit("signal", id, JSON.stringify({'sdp': connections[id].localDescription}));
+       }) .catch(err =>{console.log(err);})
+  
+    })
+  }
+}
+
  }
+
+ let silence=() => {
+let ctx =  new AudioContext()
+let oscillator = ctx.createOscillator();
+let dst = oscillator.connect(ctx.createMediaStreamDestination());
+oscillator.start();
+ctx.resume();
+return Object.assign(dst.stream.getAudioTracks()[0], {enabled: false});
+ }
+
+ let black = () => {
+let canvas = Object.assign(document.createElement("canvas"), {width: 640, height: 480});
+canvas.getContext("2d").fillRect(0, 0, canvas.width, canvas.height);
+let stream = canvas.captureStream();
+return Object.assign(stream.getVideoTracks()[0], {enabled: false});
+ }
+
+
+
 let getuserMedia = ()=>{
   if(vedio && vedioAvailable || audio && audioAvailable){
 
@@ -108,7 +174,28 @@ let getuserMedia = ()=>{
 
 // todo
 let gotMessageFromServer = (fromId, message)=>{
-
+var signal = JSON.parse(message);
+if(fromId !== socketIdRef.current){
+  if(signal.sdp){
+    connections[fromId].setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(()=>{
+      if(signal.sdp.type === "offer"){
+        connections[fromId].createAnswer().then((description)=>{
+          connections[fromId].setLocalDescription(description).then(()=>{
+socketRef.current.emit("signal", fromId, JSON.stringify({'sdp': connections[fromId].localDescription}));  
+          })
+          .catch((err)=>{
+            console.log(err);
+          }) 
+        })
+      }
+    }).catch((err)=>{
+      console.log(err);
+    })
+  }
+  if(signal.ice){
+    connections[fromId].addIceCandidate(new RTCIceCandidate(signal.ice)).catch((err)=>{
+      console.log(err);
+    })
 
 }
 let addMessage = ()=>{
@@ -170,7 +257,9 @@ let addMessage = ()=>{
          if(window.localStream !== undefined &&window.localStream !== null){
           connections [socketListId].addStream(window.localStream);
         } else{
-          // black silence stream
+          let blackSilenceStream = (...args) => new MediaStream([black(...args), silence(...args)]);
+          window.localStream = blackSilenceStream();
+          connections [socketListId].addStream(window.localStream);
         }
        
       })
@@ -215,7 +304,31 @@ let addMessage = ()=>{
        <div>
         <vedio ref={localVedioRef} autoPlay muted></vedio>
        </div>
-      </div> : <div></div>}
+      </div> :
+
+        <div className={styles.meetvedioContainer}>
+            
+            <vedio className={styles.meetUserVedio} ref={localVedioRef} autoPlay muted ></vedio>
+        
+       {videos.map((vedio, index) => {
+
+        <div key={vedio.socketId}>
+
+          <h2>{vedio.socketId}</h2>
+
+          <video data-socket={vedio.socketId}
+                 ref={ ref =>{
+                  if(ref && vedio.stream){
+                    ref.srcObject = vedio.stream;
+                  }
+                 }}
+                  autoPlay playsInline
+                 ></video>
+
+        </div>
+       })}
+
+        </div>}
     </div>
   );
-}}
+}}}
