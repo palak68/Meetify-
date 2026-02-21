@@ -1,6 +1,20 @@
 .meetVedioContainer{
     position : relative ;
+    background: rgb(10, 4, 31);
+    height : 100vh;
 }
 .meetVedioContainer > .meetUserVedio{
     position: absolute;
+    bottom :10vh;
+    height : 20vh;
+    width: auto;
+    right: 0;
+    border-radius: 20px;
+
+}
+
+
+.conferenceView {
+
+
 }

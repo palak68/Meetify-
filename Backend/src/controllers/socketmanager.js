@@ -15,20 +15,33 @@ let timeOnline = {}
 
     io.on("connection",(socket)=>{
        console.log("something connected to socket");
-        socket.on("join-call",(path)=>{
+        socket.on("join-call", (path)=>{
 
-            if(connection[path]===undefined){
-                connections[path] = []
-            }
-            connections[path].push(socket.id);
-            timeOnline[socket.id] = new Date();
-            for(let a =0; a< connections[path].length; a++){
-                io.to(connections[path][a]).emit("chat-message ", message[path][a] ['data'],
-                     message[path][a]['sender'], message[path][a]['socket-id-sender']);
-           
-            }
+    if(!connections[path]){
+        connections[path] = []
+    }
 
-        })
+    connections[path].push(socket.id);
+    timeOnline[socket.id] = new Date();
+
+    // Send old messages only if they exist
+    if(messages[path]){
+        messages[path].forEach(msg => {
+            io.to(socket.id).emit(
+                "chat-message",
+                msg.data,
+                msg.sender,
+                msg["socket-id-sender"]
+            );
+        });
+    }
+
+    // Notify all users
+    connections[path].forEach(id => {
+        io.to(id).emit("user_joined", socket.id, connections[path]);
+    });
+
+});
 
         socket.on("signal", (toId,message)=>{
             io.to(toId).emit("signal", socket.id, message);
@@ -42,13 +55,13 @@ let timeOnline = {}
          }
            return [room,isFound];}, [null,false]);
 
-           if(found===true){
+           if(Found===true){
             if(messages[matchingRoom]===undefined){
                 messages[matchingRoom] = []
             }
             messages[matchingRoom].push({'sender':sender,'data':data,'socket-id-sender':socket.id });
           connections[matchingRoom].forEach(elem=>{
-                io.to(elem).emit("chat-message ", data, sender, socket.id);
+                io.to(elem).emit("chat-message", data, sender, socket.id);
           })
         
         
