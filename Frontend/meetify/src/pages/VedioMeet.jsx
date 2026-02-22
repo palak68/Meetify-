@@ -6,6 +6,15 @@ import io from "socket.io-client";
 import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 import { Button, IconButton, TextField } from "@mui/material";
+import CallEndIcon from '@mui/icons-material/CallEnd';
+import MicIcon from '@mui/icons-material/Mic';
+import MicOffIcon from '@mui/icons-material/MicOff';
+import ScreenShareIcon from '@mui/icons-material/ScreenShare';
+import StopScreenShareIcon from '@mui/icons-material/StopScreenShare';
+import ChatIcon from '@mui/icons-material/Chat';
+import Badge from '@mui/material/Badge';
+import SendIcon from '@mui/icons-material/Send';
+import { useNavigate } from "react-router-dom";
 
 var connections ={};
 const peerConnectionConfig = {
@@ -29,8 +38,8 @@ export default function VedioMeetComponent() {
   let[screenAvailable, setScreenAvailable] = useState(true);
   let [ messages, setMessages] = useState([]);
   let [message, setMessage] = useState("");
-  let [newMessages, setNewMessages] = useState(0);
-  let [askForUsername, setAskForUsername] = useState(false);
+  let [newMessages, setNewMessages] = useState(3);
+  let [askForUsername, setAskForUsername] = useState(true);
   let [ username, setUsername] = useState("palak");
   const videoRef = useRef([]);
   let [ videos, setVideos] = useState([]);
@@ -234,9 +243,9 @@ let gotMessageFromServer = (fromId, message) => {
         .catch((err) => console.log(err));
     }
 
-  }  // 👈 closes fromId condition
+  }  
 
-}; // 👈 closes function
+}; 
 let addMessage = ()=>{
 
 }
@@ -351,6 +360,12 @@ if (socketListId === socketIdRef.current) return;
   });
 
 };
+let handleVideo =()=>{
+  setVideo(!video);
+}
+let handleAudio =()=>{
+  setAudio(!audio);
+}
   
     return (
     <div>
@@ -366,22 +381,47 @@ if (socketListId === socketIdRef.current) return;
 
         <div className={styles.meetvideoContainer}>
             <div className={styles.buttonContainer}>
-            <IconButton>
+            <IconButton onClick={handleVideo} style ={{color:"white", transform:"scale(1.2)" }}>
               {(video == true ) ? <VideocamIcon/> : <VideocamOffIcon/>}
             </IconButton>
+
+             <IconButton  sx={{
+    backgroundColor: "red",
+    color: "white",
+    "&:hover": {
+      backgroundColor: "darkred"
+    },
+    width: 50,
+    height: 50
+  }}>
+              <CallEndIcon/>
+            </IconButton>
+             <IconButton onClick={handleAudio} style ={{color:"white", transform:"scale(1.2)" }}>
+              {(audio == true ) ? <MicIcon/> : <MicOffIcon/>}
+            </IconButton>
+
+            {screenAvailable && <IconButton style ={{color:"white", transform:"scale(1.2)" }}>
+              {screen == true ? <ScreenShareIcon/> : <StopScreenShareIcon/>}
+            </IconButton>}
+            <Badge badgeContent={newMessages} max={999} color="secondary" >
+              <IconButton style ={{color:"white", transform:"scale(1.2)" }}>
+                <ChatIcon/>
+              </IconButton>
+            </Badge>
 
             </div>
            <video className={styles.meetUserVideo} ref={localVideoRef} autoPlay muted ></video>
          
 
-
-
+ 
+<div className={styles.conferenceView} >
        {videos.map((video, index) => {
   return (
-    <div className={styles.conferenceView} key={video.socketId}>
+    <div  key={video.socketId}>
       <h2>{video.socketId}</h2>
 
       <video
+      
         data-socket={video.socketId}
         ref={(ref) => {
           if (ref && video.stream) {
@@ -393,7 +433,8 @@ if (socketListId === socketIdRef.current) return;
       />
     </div>
   );
-})} 
+}
+)}  </div>
 
         </div>}
     </div>

@@ -1,20 +1,49 @@
-.meetVedioContainer{
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.meetvideoContainer{
     position : relative ;
     background: rgb(10, 4, 31);
-    height : 100vh;
+   min-height: 100vh;
+    width: 100vw;
 }
-.meetVedioContainer > .meetUserVedio{
+.meetUserVideo {
     position: absolute;
-    bottom :10vh;
-    height : 20vh;
-    width: auto;
-    right: 0;
-    border-radius: 20px;
-
+    bottom: 80px;         /* thoda upar so buttons ke upar aaye */
+    right: 30px;           /* right side */
+    width: 220px;          /* fixed size */
+    height: 150px;
+    border-radius: 15px;
+    object-fit: cover;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
-
+.buttonContainer {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;   /* center horizontally */
+    align-items: center;
+    gap: 25px;                 /* space between icons */
+}
+.buttonContainer svg{
+    font-size: 2rem;
+    color: white;
+    cursor: pointer;
+}
 
 .conferenceView {
-
-
+display: flex;
+padding : 20px;
+}
+.conferenceView > video {
+    width: 40vw;
+    min-width: 30vw;
+    height: 20vh;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
