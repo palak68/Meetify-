@@ -366,6 +366,62 @@ let handleVideo =()=>{
 let handleAudio =()=>{
   setAudio(!audio);
 }
+let getUserMediaSuccess = (stream) => {
+  try{
+    window.localStream.getTracks().forEach(track => track.stop());
+  } catch(err){
+    console.log(err);
+  }
+  window.localStream = stream;
+  localVideoRef.current.srcObject = stream;
+
+  for(let id in connections){
+    if(id == socketIdRef.current){
+      continue;
+    }
+    connections[id].addStream(window.localStream);
+    connections[id].createOffer().then((description) =>{
+       connections[id].setLocalDescription(description).then(()=>{
+        socketRef.current.emit("signal", id, JSON.stringify({'sdp': connections[id].localDescription}));
+       }) .catch(err =>{console.log(err);})
+    })
+  }
+stream.getTracks().forEach(track => track.onended=()=>{
+  setScreen(false);
+  try{    let tracks = localVideoRef.current.srcObject.getTracks();
+    tracks.forEach(track => track.stop());
+  }catch(err){
+    console.log(err);
+  }
+  let blackSilenceStream = (...args) => new MediaStream([black(...args), silence(...args)]);
+          window.localStream = blackSilenceStream();
+          localVideoRef.current.srcObject = window.localStream;
+        });
+  getUserMedia();
+
+}
+
+getDisplayMedia = () => {
+if(screen){
+  if(navigator.mediaDevices.getDisplayMedia){
+    navigator.mediaDevices.getDisplayMedia({video:true, audio:true})
+    .then(getDisplayMediaSuccess).then((stream)=>{
+
+    }).catch((err)=>{
+      console.log(err);
+    })
+  }
+}
+
+}
+useEffect(() => {
+  if (screen !== undefined) {
+    getDisplayMedia();
+  }
+}, [screen]);
+let handleScreen =()=>{
+setScreen(!screen);
+}
   
     return (
     <div>
@@ -400,7 +456,7 @@ let handleAudio =()=>{
               {(audio == true ) ? <MicIcon/> : <MicOffIcon/>}
             </IconButton>
 
-            {screenAvailable && <IconButton style ={{color:"white", transform:"scale(1.2)" }}>
+            {screenAvailable && <IconButton onClick={handleScreen} style ={{color:"white", transform:"scale(1.2)" }}>
               {screen == true ? <ScreenShareIcon/> : <StopScreenShareIcon/>}
             </IconButton>}
             <Badge badgeContent={newMessages} max={999} color="secondary" >
