@@ -13,7 +13,7 @@ html, body, #root {
 .meetUserVideo {
     position: absolute;
     bottom: 80px;         /* thoda upar so buttons ke upar aaye */
-    right: 30px;           /* right side */
+   left: 30px;           /* right side */
     width: 220px;          /* fixed size */
     height: 150px;
     border-radius: 15px;
@@ -46,4 +46,24 @@ padding : 20px;
     object-fit: cover;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+.chatRoom{
+    position:absolute;
+    height:90vh;
+    right: 0;
+    width : 30vw;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    padding-inline: 20px;
+
+}
+
+.chatContainer{
+    position: relative;
+    height: 100%;
+}
+.chattingArea{
+    position: absolute;
+    bottom:0;
 }

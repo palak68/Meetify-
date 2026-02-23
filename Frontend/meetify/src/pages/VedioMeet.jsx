@@ -34,7 +34,7 @@ export default function VedioMeetComponent() {
   let [video, setVideo] = useState(false);
   let [audio, setAudio] = useState(false);
   let [screen, setScreen] = useState();
-  let [showModel, setShowModel] = useState(false);
+  let [showModal, setShowModal] = useState(true);
   let[screenAvailable, setScreenAvailable] = useState(true);
   let [ messages, setMessages] = useState([]);
   let [message, setMessage] = useState("");
@@ -366,7 +366,7 @@ let handleVideo =()=>{
 let handleAudio =()=>{
   setAudio(!audio);
 }
-let getUserMediaSuccess = (stream) => {
+let getDisplayMediaSuccess = (stream) => {
   try{
     window.localStream.getTracks().forEach(track => track.stop());
   } catch(err){
@@ -401,7 +401,7 @@ stream.getTracks().forEach(track => track.onended=()=>{
 
 }
 
-getDisplayMedia = () => {
+const getDisplayMedia = () => {
 if(screen){
   if(navigator.mediaDevices.getDisplayMedia){
     navigator.mediaDevices.getDisplayMedia({video:true, audio:true})
@@ -422,7 +422,12 @@ useEffect(() => {
 let handleScreen =()=>{
 setScreen(!screen);
 }
-  
+
+
+
+
+
+
     return (
     <div>
       {askForUsername==true ?
@@ -436,6 +441,17 @@ setScreen(!screen);
       </div> :
 
         <div className={styles.meetvideoContainer}>
+          {showModal ?<div className={styles.chatRoom}>
+           <div className={styles.chatContainer}>
+            <h1>Chat</h1>
+           <div className={styles.chattingArea}></div>
+            <TextField id="outlined-basic" label="Enter your message" variant="outlined" />
+            <button variant="contained" >Send</button>
+                          
+                          </div>
+          </div> :<></>}
+          
+
             <div className={styles.buttonContainer}>
             <IconButton onClick={handleVideo} style ={{color:"white", transform:"scale(1.2)" }}>
               {(video == true ) ? <VideocamIcon/> : <VideocamOffIcon/>}
@@ -457,10 +473,10 @@ setScreen(!screen);
             </IconButton>
 
             {screenAvailable && <IconButton onClick={handleScreen} style ={{color:"white", transform:"scale(1.2)" }}>
-              {screen == true ? <ScreenShareIcon/> : <StopScreenShareIcon/>}
+              {screen == true ? <StopScreenShareIcon/> : <ScreenShareIcon/>}
             </IconButton>}
             <Badge badgeContent={newMessages} max={999} color="secondary" >
-              <IconButton style ={{color:"white", transform:"scale(1.2)" }}>
+              <IconButton  onClick={()=>setModal(!showModal)} style ={{color:"white", transform:"scale(1.2)" }}>
                 <ChatIcon/>
               </IconButton>
             </Badge>
