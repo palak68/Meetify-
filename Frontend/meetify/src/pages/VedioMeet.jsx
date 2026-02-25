@@ -179,12 +179,7 @@ let getUserMedia = ()=>{
 
 }
 
-let getMedia =()=>{
-    setVideo(videoAvailable);
-    setAudio(audioAvailable);
-    connectToSocketServer();
 
-  }
 
   const connect = () => {
   if (username.trim() !== "") {
@@ -195,10 +190,7 @@ let getMedia =()=>{
 };
 
 
-  useEffect(() => {
-    if(video!== undefined && audio !== undefined ){
-        getMedia();
-    }} ,[video, audio])
+  
 
 
 // todo
@@ -246,7 +238,11 @@ let gotMessageFromServer = (fromId, message) => {
   }  
 
 }; 
-let addMessage = ()=>{
+let addMessage = (data,sender,socketIdSender)=>{
+  
+  setMessages(prevMessages => [...prevMessages, { sender: sender, data: data }]);
+  if(socketIdSender !== socketIdRef.current){
+  setNewMessages((prevMessages) => prevMessages + 1);
 
 }
 
@@ -360,6 +356,25 @@ if (socketListId === socketIdRef.current) return;
   });
 
 };
+
+
+
+let getMedia =()=>{
+    setVideo(videoAvailable);
+    setAudio(audioAvailable);
+    connectToSocketServer();
+
+
+
+  }
+
+let routerTO = useNavigate();
+
+
+useEffect(() => {
+    if(video!== undefined && audio !== undefined ){
+        getMedia();
+    }} ,[video, audio])
 let handleVideo =()=>{
   setVideo(!video);
 }
@@ -423,8 +438,19 @@ let handleScreen =()=>{
 setScreen(!screen);
 }
 
+let sendMessage =()=>{
+  SocketRef.current.emit("chat-message", message, username);
+  setMessage("");
+}
 
+let handleEndCall = ()=>{
+  try{
+let tracks = localVideoRef.current.srcObject.getTracks();
+tracks.forEach(track => track.stop());
+  } catch (err){
 
+  } routerTO("/home");
+}
 
 
 
@@ -444,8 +470,15 @@ setScreen(!screen);
           {showModal ?<div className={styles.chatRoom}>
            <div className={styles.chatContainer}>
             <h1>Chat</h1>
+            <div className={styles.chattingDisplay}>
+            {messages.length > 0 ? messages.map((item , index) => {
+              return <div key={index}><p style={{fontWeight: "bold"}}>{item.sender}</p>:<p>{item.data}</p> </div>;
+            }):<> <p>No messages yet</p></>}
+            </div>
+
+
            <div className={styles.chattingArea}></div>
-            <TextField id="outlined-basic" label="Enter your message" variant="outlined" />
+            <TextField  value={message} onChange={(e) => {setMessage(e.target.value)}} id="outlined-basic" label="Enter your message" variant="outlined" />
             <button variant="contained" >Send</button>
                           
                           </div>
@@ -457,7 +490,7 @@ setScreen(!screen);
               {(video == true ) ? <VideocamIcon/> : <VideocamOffIcon/>}
             </IconButton>
 
-             <IconButton  sx={{
+             <IconButton   onClick={handleEndCall} sx={{
     backgroundColor: "red",
     color: "white",
     "&:hover": {
@@ -465,6 +498,7 @@ setScreen(!screen);
     },
     width: 50,
     height: 50
+
   }}>
               <CallEndIcon/>
             </IconButton>
@@ -512,4 +546,5 @@ setScreen(!screen);
     </div>
   );
 
-}
+
+}}
