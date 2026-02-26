@@ -54,3 +54,25 @@ border-radius: 20px;
 height: 70vh;
 width: auto;
 }
+.meetContainer{
+  display:flex;
+  padding-inline: 20px;
+  height:80vh;
+  gap:10vw;
+  justify-content: center;
+}
+.rightPanel > img{
+width:30vw;
+height: auto;
+border-radius: 20px;
+}
+
+.rightPanel{
+display:flex;
+align-items: center;
+}
+.leftPanel{
+  height: 100%;
+  display: flex;
+  align-items: center;
+}

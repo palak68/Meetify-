@@ -46,11 +46,42 @@ if(request.status === HttpStatusCode.Ok){
 throw error;
     }
   }
+
+
+  const getHistoryOfUser = async()=>{
+    try{
+      
+      let request = await client.get("/get_all_activity", {
+        params: { token: localStorage.getItem("token") }
+      });
+      return request.data;
+      
+    }catch(error){
+      throw error;
+    }
+  }
+
+const addToHistory = async(meetingCode)=>{
+  try{
+    let request = await client.post("/add_to_activity", {
+      token: localStorage.getItem("token"),
+      meeting_code: meetingCode
+    });
+    return request.status;
+  }catch(error){
+    throw error;
+  }
+}
+
+
+
   const data = {
     userData,
     setUserData,
     handleRegister,
-    handleLogin
+    handleLogin,
+    getHistoryOfUser,
+    addToHistory
   };
 
   return (
