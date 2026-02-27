@@ -23,7 +23,7 @@ style ={{display:"flex", justifyContent:"center", alignItems:"center"}}>
     <h3>Meetify</h3>
 </div>
  <div style={{display:"flex",alignItems:"center"}}>
-    <IconButton>
+    <IconButton onClick={() => navigate("/history")}>
         <RestoreIcon/>
         
     </IconButton><p>History</p>

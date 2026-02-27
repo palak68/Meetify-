@@ -20,6 +20,7 @@ function App() {
         <Route path='/auth' element={<Authentication />} />
         <Route path='/:url' element={<VedioMeetComponent />} />
         <Route path='/home' element={<homeComponent />} />
+        <Route path='/history' element={<History />} />
       </Routes></AuthProvider>
     </Router>
     </>
