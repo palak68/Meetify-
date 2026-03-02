@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 import LandingPage from './pages/landing'
 import Authentication from './pages/authentication'
-import { AuthProvider } from './context/Authcontext'
+import { AuthProvider } from './contexts/Authcontext'
 import './App.css'
 import VedioMeetComponent from './pages/VedioMeet'
 
