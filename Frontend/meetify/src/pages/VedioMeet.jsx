@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "../styles/vedioComponent.module.css"
-const server_url = "http://localhost:8000";
+import server from '../environment';
+const server_url = server;
 import { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import VideocamIcon from '@mui/icons-material/Videocam';
@@ -31,8 +32,8 @@ export default function VedioMeetComponent() {
   var localVideoRef = useRef();
   let [videoAvailable, setVideoAvailable] = useState(true);
   let [audioAvailable, setAudioAvailable] = useState(true);
-  let [video, setVideo] = useState(false);
-  let [audio, setAudio] = useState(false);
+  let [video, setVideo] = useState([]);
+let [audio, setAudio] = useState();
   let [screen, setScreen] = useState();
   let [showModal, setShowModal] = useState(true);
   let[screenAvailable, setScreenAvailable] = useState(true);
@@ -40,7 +41,7 @@ export default function VedioMeetComponent() {
   let [message, setMessage] = useState("");
   let [newMessages, setNewMessages] = useState(3);
   let [askForUsername, setAskForUsername] = useState(true);
-  let [ username, setUsername] = useState("palak");
+  let [username, setUsername] = useState("");
   const videoRef = useRef([]);
   let [ videos, setVideos] = useState([]);
 
@@ -87,7 +88,7 @@ useEffect(() =>
   {
 
     getPermissions();
-  },[])
+  } ,[]);
 
  let userMediaSuccess = (stream)=>{
 
@@ -159,7 +160,7 @@ return Object.assign(stream.getVideoTracks()[0], {enabled: false});
 
 
 let getUserMedia = ()=>{
-  if((video && videoAvailable || audio && audioAvailable)){
+  if ((video && videoAvailable) || (audio && audioAvailable)){
 
     navigator.mediaDevices.getUserMedia({video:video, audio:audio})
    .then(userMediaSuccess)
@@ -181,13 +182,10 @@ let getUserMedia = ()=>{
 
 
 
-  const connect = () => {
-  if (username.trim() !== "") {
-    setAskForUsername(false);
-    setVideo(videoAvailable);
-    setAudio(audioAvailable);
-  }
-};
+  let connect = () => {
+   setAskForUsername(false);
+   getMedia();
+}
 
 
   
@@ -238,14 +236,16 @@ let gotMessageFromServer = (fromId, message) => {
   }  
 
 }; 
-let addMessage = (data,sender,socketIdSender)=>{
-  
-  setMessages(prevMessages => [...prevMessages, { sender: sender, data: data }]);
-  if(socketIdSender !== socketIdRef.current){
-  setNewMessages((prevMessages) => prevMessages + 1);
+let addMessage = (data, sender, socketIdSender) => {
+  setMessages((prevMessages) => [
+    ...prevMessages,
+    { sender: sender, data: data }
+  ]);
 
-}
-
+  if (socketIdSender !== socketIdRef.current) {
+    setNewMessages((prevNewMessages) => prevNewMessages + 1);
+  }
+};
     let connectToSocketServer = () => {
 
   socketRef.current = io(server_url, { secure: false });
@@ -254,7 +254,7 @@ let addMessage = (data,sender,socketIdSender)=>{
 
   socketRef.current.on("connect", () => {
 
-    socketRef.current.emit("join-call", window.location.pathname);
+    socketRef.current.emit('join-call', window.location.href);
     socketIdRef.current = socketRef.current.id;
 
     socketRef.current.on("chat-message", addMessage);
@@ -264,7 +264,7 @@ let addMessage = (data,sender,socketIdSender)=>{
       delete connections[id];
     });
 
-    socketRef.current.on("user_joined", (id, clients) => {
+    socketRef.current.on("user-joined", (id, clients) => {
   
       clients.forEach((socketListId) => {
 if (socketListId === socketIdRef.current) return;
@@ -439,7 +439,7 @@ setScreen(!screen);
 }
 
 let sendMessage =()=>{
-  SocketRef.current.emit("chat-message", message, username);
+  socketRef.current.emit("chat-message", message, username);
   setMessage("");
 }
 
@@ -449,7 +449,7 @@ let tracks = localVideoRef.current.srcObject.getTracks();
 tracks.forEach(track => track.stop());
   } catch (err){
 
-  } routerTO("/home");
+  } window.location.href = "/";
 }
 
 
@@ -479,7 +479,7 @@ tracks.forEach(track => track.stop());
 
            <div className={styles.chattingArea}></div>
             <TextField  value={message} onChange={(e) => {setMessage(e.target.value)}} id="outlined-basic" label="Enter your message" variant="outlined" />
-            <button variant="contained" >Send</button>
+            <Button variant="contained" onClick={sendMessage}>Send</Button>
                           
                           </div>
           </div> :<></>}
@@ -510,7 +510,7 @@ tracks.forEach(track => track.stop());
               {screen == true ? <StopScreenShareIcon/> : <ScreenShareIcon/>}
             </IconButton>}
             <Badge badgeContent={newMessages} max={999} color="secondary" >
-              <IconButton  onClick={()=>setModal(!showModal)} style ={{color:"white", transform:"scale(1.2)" }}>
+              <IconButton onClick={()=>setShowModal(!showModal)} style ={{color:"white", transform:"scale(1.2)" }}>
                 <ChatIcon/>
               </IconButton>
             </Badge>
@@ -547,4 +547,4 @@ tracks.forEach(track => track.stop());
   );
 
 
-}}
+}
