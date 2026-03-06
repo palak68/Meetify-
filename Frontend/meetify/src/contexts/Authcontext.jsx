@@ -12,76 +12,86 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
 
-  
-
+  // ✅ REGISTER
   const handleRegister = async (name, username, password) => {
     try {
-      const response = await client.post("/register", {
+      const request = await client.post("/register", {
         name,
         username,
         password,
       });
 
-      if (response.status === HttpStatusCode.Created) {
-        setUserData(response.data.user);
-        navigate("/");
-        return response.data.message;
+      if (request.status === HttpStatusCode.Ok) {
+        localStorage.setItem("token", request.data.token);
+        setUserData(request.data.user);
+        navigate("/home");
       }
+
+      return "Registration Successful";
     } catch (error) {
-      console.error("Error during registration:", error);
       throw error;
     }
   };
-  const handleLogin = async (username , password)=>{
-    try{
-let request = await client.post("/login", {
-  username,
-  password
-})
-if(request.status === HttpStatusCode.Ok){
-  localStorage.setItem("token", request.data.token);
-  navigate("/");
-}
-    }catch(error){
-throw error;
-    }
-  }
 
-
-  const getHistoryOfUser = async()=>{
-    try{
-      
-      let request = await client.get("/get_all_activity", {
-        params: { token: localStorage.getItem("token") }
+  // ✅ LOGIN
+  const handleLogin = async (username, password) => {
+    try {
+      const request = await client.post("/login", {
+        username,
+        password,
       });
-      return request.data;
-      
-    }catch(error){
+
+      if (request.status === HttpStatusCode.Ok) {
+        localStorage.setItem("token", request.data.token);
+        navigate("/home");
+      }
+    } catch (error) {
       throw error;
     }
-  }
+  };
 
-const addToHistory = async(meetingCode)=>{
-  try{
-    let request = await client.post("/add_to_activity", {
-      token: localStorage.getItem("token"),
-      meeting_code: meetingCode
-    });
-    return request.status;
-  }catch(error){
-    throw error;
-  }
-}
+  // ✅ GET HISTORY
+  const getHistoryOfUser = async () => {
+    try {
+      const request = await client.get("/history", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
+      return request.data;
+    } catch (error) {
+      throw error;
+    }
+  };
 
+  // ✅ ADD TO HISTORY
+  const addToHistory = async (meetingCode) => {
+    try {
+      const request = await client.post(
+        "/history",
+        { meeting_code: meetingCode },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
+      return request.status;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  // ✅ IMPORTANT: data object MUST be AFTER functions
   const data = {
     userData,
     setUserData,
     handleRegister,
     handleLogin,
     getHistoryOfUser,
-    addToHistory
+    addToHistory,
   };
 
   return (

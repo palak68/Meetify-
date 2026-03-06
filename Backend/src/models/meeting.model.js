@@ -1,3 +1,4 @@
+ import mongoose from "mongoose";
  import { Schema } from "mongoose";
  const meetingSchema = new Schema({
     user_id: {type: String, required: true},

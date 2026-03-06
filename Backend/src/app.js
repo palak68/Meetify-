@@ -15,7 +15,11 @@ const server = createServer(app);
 const io = connectTosocket(server);
 
 /* ✅ Move these ABOVE routes */
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.json({ limit: '40kb' }));
 app.use(express.urlencoded({ extended: true, limit: '40kb' }));
 
@@ -43,5 +47,14 @@ const startServer = async () => {
     process.exit(1);
   }
 };
-
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
+});
+app.use((err, req, res, next) => {
+  console.error("Global Error:", err.message);
+  res.status(500).json({
+    success: false,
+    message: err.message || "Internal Server Error"
+  });
+});
 startServer();

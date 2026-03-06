@@ -12,7 +12,7 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { AuthContext } from '../context/AuthContext';
+import { AuthContext } from '../contexts/AuthContext';
 import { Snackbar } from '@mui/material';
 
 
@@ -112,7 +112,7 @@ export default function Authentication() {
                             </Button>
                         </div>
 
-                        <Box component="form" noValidate sx={{ mt: 1 }}>
+                        <Box component="form"  autoComplete="off" noValidate sx={{ mt: 1 }}>
                             {formState === 1 ? <TextField
                                 margin="normal"
                                 required
