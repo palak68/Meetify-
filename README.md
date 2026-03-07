@@ -31,6 +31,9 @@ Database
 Authentication
 - JWT (JSON Web Token)
 
+real time communication 
+WEBTRC.
+SOCKET.IO
 - 
 ## Installation
 
