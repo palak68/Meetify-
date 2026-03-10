@@ -4,10 +4,10 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import LandingPage from "./pages/landing";
 import Authentication from "./pages/authentication";
-import HomeComponent from "./pages/Home";
-import History from "./pages/History";
+import HomeComponent from "./pages/home";
+import History from "./pages/history";
 import VedioMeetComponent from "./pages/VedioMeet";
-import { AuthProvider } from "./contexts/Authcontext";
+import { AuthProvider } from "./context/Authcontext";
 
 import "./App.css";
 
